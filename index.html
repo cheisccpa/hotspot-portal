@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Acceso WiFi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .wifi-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .wifi-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-connect {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-connect:active {
+            transform: translateY(0);
+        }
+
+        .btn-connect:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .terms {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .terms a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message, .error-message {
+            display: none;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="wifi-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M1,9L2.47,10.47C4.07,8.87 6.27,8 8.75,8C11.23,8 13.43,8.87 15.03,10.47L16.5,9C14.5,7 11.79,5.75 8.75,5.75C5.71,5.75 3,7 1,9M3.94,11.94L5.42,13.42C6.22,12.62 7.38,12.12 8.75,12.12C10.12,12.12 11.28,12.62 12.08,13.42L13.56,11.94C12.36,10.74 10.66,9.87 8.75,9.87C6.84,9.87 5.14,10.74 3.94,11.94M6.88,14.88L8.75,16.75L10.62,14.88C10.12,14.38 9.47,14.12 8.75,14.12C8.03,14.12 7.38,14.38 6.88,14.88M15,18V21H18V18H15M15.75,3.75A8.25,8.25 0 0,0 7.5,12C7.5,13.43 7.88,14.77 8.53,15.94L15.94,8.53C14.77,7.88 13.43,7.5 12,7.5A4.5,4.5 0 0,1 16.5,3A8.22,8.22 0 0,0 15.75,3.75M19.07,17.57L22.65,14L21.24,12.58L18.41,15.41L17.23,14.23L15.82,15.64L18.41,18.23L19.07,17.57Z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <h1>Portal de Acceso WiFi</h1>
+        <p class="subtitle">Ingrese sus credenciales para conectarse a Internet</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" value="guest" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" value="guest" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" placeholder="usuario@ejemplo.com" required>
+            </div>
+            
+            <button type="submit" class="btn-connect" id="connectBtn">
+                CONECTAR
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Conectando...</p>
+        </div>
+        
+        <div class="success-message" id="successMsg">
+            ✓ Conexión exitosa. Redirigiendo...
+        </div>
+        
+        <div class="error-message" id="errorMsg">
+            ✗ Error al conectar. Por favor intente nuevamente.
+        </div>
+        
+        <div class="terms">
+            Al conectarse, acepta nuestros <a href="#">términos y condiciones</a>
+        </div>
+    </div>
+
+    <script>
+        // Obtener parámetros de MikroTik de la URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Parámetros de MikroTik
+        var mac = getUrlParameter('mac');
+        var ip = getUrlParameter('ip');
+        var username = getUrlParameter('username');
+        var linklogin = getUrlParameter('link-login');
+        var linkorig = getUrlParameter('link-orig');
+        var error = getUrlParameter('error');
+        var trial = getUrlParameter('trial');
+        var loginby = getUrlParameter('login-by');
+        var chapid = getUrlParameter('chap-id');
+        var chapchallenge = getUrlParameter('chap-challenge');
+        var linkloginonly = getUrlParameter('link-login-only');
+        var linkorigesc = getUrlParameter('link-orig-esc');
+        var macesc = getUrlParameter('mac-esc');
+
+        // Función para enviar email usando EmailJS
+        function sendEmail(formData) {
+            // Usar EmailJS para enviar el correo
+            // Necesitarás registrarte en https://www.emailjs.com/ y obtener estos IDs
+            const serviceID = 'TU_SERVICE_ID'; // Reemplazar con tu Service ID de EmailJS
+            const templateID = 'TU_TEMPLATE_ID'; // Reemplazar con tu Template ID
+            const publicKey = 'TU_PUBLIC_KEY'; // Reemplazar con tu Public Key
+
+            // Si no tienes EmailJS configurado, usar esta alternativa con Formspree
+            const formspreeEndpoint = 'https://formspree.io/f/xwpnwqld'; // Reemplazar con tu Form ID de Formspree
+            
+            // Enviar usando Formspree (alternativa gratuita)
+            return fetch(formspreeEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    usuario: formData.username,
+                    password: formData.password,
+                    email: formData.email,
+                    mac: mac,
+                    ip: ip,
+                    fecha: new Date().toLocaleString('es-AR'),
+                    _replyto: 'cheis@itscg.net',
+                    _subject: 'Nuevo login en Portal Cautivo WiFi'
+                })
+            });
+        }
+
+        // Función para autenticar en MikroTik
+        function doLogin(username, password) {
+            if (linkloginonly) {
+                // Si MikroTik requiere POST al link-login-only
+                document.location.href = linkloginonly + "?dst=" + escape(linkorig) + "&username=" + username + "&password=" + password;
+            } else {
+                // Login normal con CHAP o plain
+                if (chapid) {
+                    // Login con CHAP-MD5
+                    var hexChapChallenge = chapchallenge.replace(/:/g, '');
+                    // Aquí deberías implementar MD5, pero para simplicidad usaremos plain
+                    document.location.href = linklogin + "?username=" + username + "&password=" + password + "&dst=" + linkorig;
+                } else {
+                    // Login plain
+                    document.location.href = linklogin + "?username=" + username + "&password=" + password + "&dst=" + linkorig;
+                }
+            }
+        }
+
+        // Manejar el envío del formulario
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                email: document.getElementById('email').value
+            };
+            
+            // Mostrar loading
+            document.getElementById('connectBtn').disabled = true;
+            document.getElementById('connectBtn').textContent = 'CONECTANDO...';
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('successMsg').style.display = 'none';
+            document.getElementById('errorMsg').style.display = 'none';
+            
+            try {
+                // Enviar email con los datos
+                await sendEmail(formData);
+                
+                // Mostrar mensaje de éxito
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('successMsg').style.display = 'block';
+                
+                // Esperar 2 segundos y luego autenticar en MikroTik
+                setTimeout(function() {
+                    // Si hay link de login de MikroTik, usarlo
+                    if (linklogin || linkloginonly) {
+                        doLogin(formData.username, formData.password);
+                    } else {
+                        // Si no hay parámetros de MikroTik, redirigir a Google
+                        window.location.href = linkorig || 'https://www.google.com';
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                // Mostrar error
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('connectBtn').textContent = 'CONECTAR';
+                console.error('Error:', error);
+            }
+        });
+
+        // Si hay error de MikroTik, mostrarlo
+        if (error) {
+            document.getElementById('errorMsg').textContent = 'Error: ' + error;
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
